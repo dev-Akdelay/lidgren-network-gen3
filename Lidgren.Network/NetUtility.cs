@@ -276,13 +276,13 @@ namespace Lidgren.Network
 		[CLSCompliant(false)]
 		public static int BitsToHoldUInt(uint value)
 		{
-			if (input == 0) return 1;
+			if (value == 0) return 1;
 			int n = 31;
-			if ((input >> 16) == 0) { n = n - 16; input = input << 16; }
-			if ((input >> 24) == 0) { n = n - 8; input = input << 8; }
-			if ((input >> 28) == 0) { n = n - 4; input = input << 4; }
-			if ((input >> 30) == 0) { n = n - 2; input = input << 2; }
-			n = n + (int)(input >> 31);
+			if ((value >> 16) == 0) { n = n - 16; value = value << 16; }
+			if ((value >> 24) == 0) { n = n - 8; value = value << 8; }
+			if ((value >> 28) == 0) { n = n - 4; value = value << 4; }
+			if ((value >> 30) == 0) { n = n - 2; value = value << 2; }
+			n = n + (int)(value >> 31);
 			return n;
 		}
 
@@ -292,15 +292,15 @@ namespace Lidgren.Network
 		[CLSCompliant(false)]
 		public static int BitsToHoldUInt64(ulong value)
 		{
-			if (input == 0) return 1;
-			int n = 1;
-			if ((input >> 32) == 0) { n = n + 32; input = input << 32; }
-			if ((input >> 48) == 0) { n = n + 16; input = input << 16; }
-			if ((input >> 56) == 0) { n = n + 8; input = input << 8; }
-			if ((input >> 60) == 0) { n = n + 4; input = input << 4; }
-			if ((input >> 62) == 0) { n = n + 2; input = input << 2; }
-			n = n - (int)(input >> 63);
-			return 64-n;
+			if (value == 0) return 1;
+			int n = 63;
+			if ((value >> 32) == 0) { n = n - 32; value = value << 32; }
+			if ((value >> 48) == 0) { n = n - 16; value = value << 16; }
+			if ((value >> 56) == 0) { n = n - 8; value = value << 8; }
+			if ((value >> 60) == 0) { n = n - 4; value = value << 4; }
+			if ((value >> 62) == 0) { n = n - 2; value = value << 2; }
+			n = n + (int)(value >> 63);
+			return n;
 		}
 
 		/// <summary>
