@@ -299,7 +299,7 @@ namespace Lidgren.Network
 		/// </summary>
 		public static int BytesToHoldBits(int numBits)
 		{
-			return (numBits + 7) / 8;
+			return (numBits + 7) >> 3;
 		}
 
 		internal static UInt32 SwapByteOrder(UInt32 value)
