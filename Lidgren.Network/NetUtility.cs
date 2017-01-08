@@ -276,10 +276,14 @@ namespace Lidgren.Network
 		[CLSCompliant(false)]
 		public static int BitsToHoldUInt(uint value)
 		{
-			int bits = 1;
-			while ((value >>= 1) != 0)
-				bits++;
-			return bits;
+			if (input == 0) return 1;
+			int n = 31;
+			if ((input >> 16) == 0) { n = n - 16; input = input << 16; }
+			if ((input >> 24) == 0) { n = n - 8; input = input << 8; }
+			if ((input >> 28) == 0) { n = n - 4; input = input << 4; }
+			if ((input >> 30) == 0) { n = n - 2; input = input << 2; }
+			n = n + (int)(input >> 31);
+			return n;
 		}
 
 		/// <summary>
