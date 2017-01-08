@@ -313,15 +313,10 @@ namespace Lidgren.Network
 
 		internal static UInt64 SwapByteOrder(UInt64 value)
 		{
-			return
-				((value & 0xff00000000000000L) >> 56) |
-				((value & 0x00ff000000000000L) >> 40) |
-				((value & 0x0000ff0000000000L) >> 24) |
-				((value & 0x000000ff00000000L) >> 8) |
-				((value & 0x00000000ff000000L) << 8) |
-				((value & 0x0000000000ff0000L) << 24) |
-				((value & 0x000000000000ff00L) << 40) |
-				((value & 0x00000000000000ffL) << 56);
+			value = ((value >> 32) | (value << 32));
+			value = ((value & 0xFFFF0000FFFF0000UL) >> 16) | ((value & 0x0000FFFF0000FFFFUL) << 16);
+			value = ((value & 0xFF00FF00FF00FF00UL) >> 8) | ((value & 0x00FF00FF00FF00FFUL) << 8);
+			return value;
 		}
 
 		internal static bool CompareElements(byte[] one, byte[] two)
