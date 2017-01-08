@@ -288,10 +288,15 @@ namespace Lidgren.Network
 		[CLSCompliant(false)]
 		public static int BitsToHoldUInt64(ulong value)
 		{
-			int bits = 1;
-			while ((value >>= 1) != 0)
-				bits++;
-			return bits;
+			if (input == 0) return 1;
+			int n = 1;
+			if ((input >> 32) == 0) { n = n + 32; input = input << 32; }
+			if ((input >> 48) == 0) { n = n + 16; input = input << 16; }
+			if ((input >> 56) == 0) { n = n + 8; input = input << 8; }
+			if ((input >> 60) == 0) { n = n + 4; input = input << 4; }
+			if ((input >> 62) == 0) { n = n + 2; input = input << 2; }
+			n = n - (int)(input >> 63);
+			return 64-n;
 		}
 
 		/// <summary>
