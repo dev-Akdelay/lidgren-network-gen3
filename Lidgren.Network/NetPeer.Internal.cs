@@ -677,21 +677,25 @@ namespace Lidgren.Network
 						LogWarning("Received Connect, but we're not accepting incoming connections!");
 						return;
 					}
-					// handle connect
-					// It's someone wanting to shake hands with us!
+                    // handle connect
+                    // It's someone wanting to shake hands with us!
 
-					int reservedSlots = m_handshakes.Count + m_connections.Count;
-					if (reservedSlots >= m_configuration.m_maximumConnections)
-					{
-						// server full
-						NetOutgoingMessage full = CreateMessage("Server full");
-						full.m_messageType = NetMessageType.Disconnect;
-						SendLibrary(full, senderEndPoint);
-						return;
-					}
+				    //Add Client Auth here or earlier
 
-					// Ok, start handshake!
-					NetConnection conn = new NetConnection(this, senderEndPoint);
+				    //int reservedSlots = m_handshakes.Count + m_connections.Count;
+				    //if (reservedSlots >= m_configuration.m_maximumConnections)
+				    //Dirty fix
+				    if (m_configuration.m_curPlayers >= m_configuration.m_maxPlayers)
+				    {
+				        // server full
+				        NetOutgoingMessage full = CreateMessage("Server full");
+				        full.m_messageType = NetMessageType.Disconnect;
+				        SendLibrary(full, senderEndPoint);
+				        return;
+				    }
+
+                    // Ok, start handshake!
+                    NetConnection conn = new NetConnection(this, senderEndPoint);
 					conn.m_status = NetConnectionStatus.ReceivedInitiation;
 					m_handshakes.Add(senderEndPoint, conn);
 					conn.ReceivedHandshake(now, tp, ptr, payloadByteLength);
