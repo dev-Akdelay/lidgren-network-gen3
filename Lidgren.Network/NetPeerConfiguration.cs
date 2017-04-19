@@ -195,8 +195,8 @@ namespace Lidgren.Network
 		/// </summary>
 		public string NetworkThreadName
 		{
-			get { return m_networkThreadName; }
-			set
+			get => m_networkThreadName;
+		    set
 			{
 				if (m_isLocked)
 					throw new NetException("NetworkThreadName may not be set after the NetPeer which uses the configuration has been started");
@@ -207,10 +207,10 @@ namespace Lidgren.Network
 		/// <summary>
 		/// Gets or sets the maximum amount of connections this peer can hold. Cannot be changed once NetPeer is initialized.
 		/// </summary>
-		public int MaximumConnections
+		public int MaxPlayers
 		{
-			get { return m_maxPlayers; }
-			set
+			get => m_maxPlayers;
+		    set
 			{
 				if (m_isLocked)
 					throw new NetException(c_isLockedMessage);
@@ -221,13 +221,8 @@ namespace Lidgren.Network
 	    /// <summary />
 	    public int CurrentPlayers
 	    {
-	        get { return m_curPlayers; }
-	        set
-	        {
-	            if (m_isLocked)
-	                throw new NetException(c_isLockedMessage);
-	            m_curPlayers = value;
-	        }
+	        get => m_curPlayers;
+	        set => m_curPlayers = value;
 	    }
 
         /// <summary>

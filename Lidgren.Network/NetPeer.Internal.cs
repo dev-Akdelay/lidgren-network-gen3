@@ -100,7 +100,7 @@ namespace Lidgren.Network
 					}
 					catch (Exception ex)
 					{
-						LogWarning("Receive callback exception:" + ex);
+						LogError("Receive callback exception:" + ex);
 					}
 				}
 			}
@@ -277,8 +277,7 @@ namespace Lidgren.Network
 					LogDebug("Shutdown complete");
 
 					// wake up any threads waiting for server shutdown
-					if (m_messageReceivedEvent != null)
-						m_messageReceivedEvent.Set();
+				    m_messageReceivedEvent?.Set();
 				}
 
 				m_lastSocketBind = float.MinValue;
@@ -382,10 +381,9 @@ namespace Lidgren.Network
 				}
 			}
 
-            if (m_upnp != null)
-                m_upnp.CheckForDiscoveryTimeout();
+		    m_upnp?.CheckForDiscoveryTimeout();
 
-			//
+		    //
 			// read from socket
 			//
 			if (m_socket == null)
@@ -415,7 +413,7 @@ namespace Lidgren.Network
 							// connection reset by peer, aka connection forcibly closed aka "ICMP port unreachable"
 							// we should shut down the connection; but m_senderRemote seemingly cannot be trusted, so which connection should we shut down?!
 							// So, what to do?
-							LogWarning("ConnectionReset");
+							LogVerbose("ConnectionReset");
 							return;
 
 						case SocketError.NotConnected:
@@ -424,7 +422,7 @@ namespace Lidgren.Network
 							return;
 
 						default:
-							LogWarning("Socket exception: " + sx.ToString());
+							LogVerbose("Socket exception: " + sx.ToString());
 							return;
 					}
 				}
@@ -494,7 +492,7 @@ namespace Lidgren.Network
 
 					if (bytesReceived - ptr < payloadByteLength)
 					{
-						LogWarning("Malformed packet; stated payload length " + payloadByteLength + ", remaining bytes " + (bytesReceived - ptr));
+						LogError("Malformed packet; stated payload length " + payloadByteLength + ", remaining bytes " + (bytesReceived - ptr));
 						return;
 					}
 
@@ -515,8 +513,7 @@ namespace Lidgren.Network
 						}
 						else
 						{
-							if (sender == null && !m_configuration.IsMessageTypeEnabled(NetIncomingMessageType.UnconnectedData))
-								return; // dropping unconnected message since it's not enabled
+							if (sender == null && !m_configuration.IsMessageTypeEnabled(NetIncomingMessageType.UnconnectedData)) return;
 
 							NetIncomingMessage msg = CreateIncomingMessage(NetIncomingMessageType.Data, payloadByteLength);
 							msg.m_isFragment = isFragment;
@@ -559,9 +556,7 @@ namespace Lidgren.Network
 				}
 
 				m_statistics.PacketReceived(bytesReceived, numMessages, numFragments);
-				if (sender != null)
-					sender.m_statistics.PacketReceived(bytesReceived, numMessages, numFragments);
-
+			    sender?.m_statistics.PacketReceived(bytesReceived, numMessages, numFragments);
 			} while (m_socket.Available > 0);
 		}
 
@@ -669,14 +664,15 @@ namespace Lidgren.Network
 						}
 					}
 
-					LogWarning("Received unhandled library message " + tp + " from " + senderEndPoint);
+					LogError("Received unhandled library message " + tp + " from " + senderEndPoint);
 					return;
 				case NetMessageType.Connect:
 					if (m_configuration.AcceptIncomingConnections == false)
 					{
-						LogWarning("Received Connect, but we're not accepting incoming connections!");
+						LogError("Received Connect, but we're not accepting incoming connections!");
 						return;
 					}
+                        
                     // handle connect
                     // It's someone wanting to shake hands with us!
 
@@ -706,7 +702,7 @@ namespace Lidgren.Network
 					LogVerbose("Received Disconnect from unconnected source: " + senderEndPoint);
 					return;
 				default:
-					LogWarning("Received unhandled library message " + tp + " from " + senderEndPoint);
+					LogError("Received unhandled library message " + tp + " from " + senderEndPoint);
 					return;
 			}
 		}
@@ -717,13 +713,13 @@ namespace Lidgren.Network
 			conn.InitExpandMTU(NetTime.Now);
 
 			if (m_handshakes.Remove(conn.m_remoteEndPoint) == false)
-				LogWarning("AcceptConnection called but m_handshakes did not contain it!");
+				LogVerbose("AcceptConnection called but m_handshakes did not contain it!");
 
 			lock (m_connections)
 			{
 				if (m_connections.Contains(conn))
 				{
-					LogWarning("AcceptConnection called but m_connection already contains it!");
+					LogVerbose("AcceptConnection called but m_connection already contains it!");
 				}
 				else
 				{

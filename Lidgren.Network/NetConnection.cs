@@ -480,7 +480,7 @@ namespace Lidgren.Network
 					m_peer.HandleNatIntroduction(ptr);
 					break;
 				default:
-					m_peer.LogWarning("Connection received unhandled library message: " + tp);
+					m_peer.LogError("Connection received unhandled library message: " + tp);
 					break;
 			}
 		}

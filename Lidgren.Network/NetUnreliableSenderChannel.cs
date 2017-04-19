@@ -103,7 +103,7 @@ namespace Lidgren.Network
 			if (m_doFlowControl == false)
 			{
 				// we have no use for acks on this channel since we don't respect the window anyway
-				m_connection.m_peer.LogWarning("SuppressUnreliableUnorderedAcks sender/receiver mismatch!");
+				m_connection.m_peer.LogVerbose("SuppressUnreliableUnorderedAcks sender/receiver mismatch!");
 				return;
 			}
 

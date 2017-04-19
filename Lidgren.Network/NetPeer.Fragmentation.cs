@@ -113,7 +113,7 @@ namespace Lidgren.Network
 
 			if (chunkNumber >= totalNumChunks)
 			{
-				LogWarning("Index out of bounds for chunk " + chunkNumber + " (total chunks " + totalNumChunks + ")");
+				LogVerbose("Index out of bounds for chunk " + chunkNumber + " (total chunks " + totalNumChunks + ")");
 				return;
 			}
 

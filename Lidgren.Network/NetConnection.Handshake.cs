@@ -89,7 +89,7 @@ namespace Lidgren.Network
 					case NetConnectionStatus.None:
 					case NetConnectionStatus.ReceivedInitiation:
 					default:
-						m_peer.LogWarning("Time to resend handshake, but status is " + m_status);
+						m_peer.LogVerbose("Time to resend handshake, but status is " + m_status);
 						break;
 				}
 			}
@@ -231,7 +231,7 @@ namespace Lidgren.Network
 		{
 			if (m_status != NetConnectionStatus.RespondedAwaitingApproval)
 			{
-				m_peer.LogWarning("Approve() called in wrong status; expected RespondedAwaitingApproval; got " + m_status);
+				m_peer.LogVerbose("Approve() called in wrong status; expected RespondedAwaitingApproval; got " + m_status);
 				return;
 			}
 
@@ -248,7 +248,7 @@ namespace Lidgren.Network
 		{
 			if (m_status != NetConnectionStatus.RespondedAwaitingApproval)
 			{
-				m_peer.LogWarning("Approve() called in wrong status; expected RespondedAwaitingApproval; got " + m_status);
+				m_peer.LogVerbose("Approve() called in wrong status; expected RespondedAwaitingApproval; got " + m_status);
 				return;
 			}
 
@@ -303,27 +303,27 @@ namespace Lidgren.Network
 								m_remoteHailMessage = null; 
 							}
 
-							if (m_peerConfiguration.IsMessageTypeEnabled(NetIncomingMessageType.ConnectionApproval))
-							{
-								// ok, let's not add connection just yet
-								NetIncomingMessage appMsg = m_peer.CreateIncomingMessage(NetIncomingMessageType.ConnectionApproval, (m_remoteHailMessage == null ? 0 : m_remoteHailMessage.LengthBytes));
-								appMsg.m_receiveTime = now;
-								appMsg.m_senderConnection = this;
-								appMsg.m_senderEndPoint = this.m_remoteEndPoint;
-								if (m_remoteHailMessage != null)
-									appMsg.Write(m_remoteHailMessage.m_data, 0, m_remoteHailMessage.LengthBytes);
-								SetStatus(NetConnectionStatus.RespondedAwaitingApproval, "Awaiting approval");
-								m_peer.ReleaseMessage(appMsg);
-								return;
-							}
+                            if (m_peerConfiguration.IsMessageTypeEnabled(NetIncomingMessageType.ConnectionApproval))
+                            {
+                                // ok, let's not add connection just yet
+                                NetIncomingMessage appMsg = m_peer.CreateIncomingMessage(NetIncomingMessageType.ConnectionApproval, m_remoteHailMessage?.LengthBytes ?? 0);
+                                appMsg.m_receiveTime = now;
+                                appMsg.m_senderConnection = this;
+                                appMsg.m_senderEndPoint = this.m_remoteEndPoint;
+                                if (m_remoteHailMessage != null) appMsg.Write(m_remoteHailMessage.m_data, 0, m_remoteHailMessage.LengthBytes);
 
-							SendConnectResponse((float)now, true);
+                                SetStatus(NetConnectionStatus.RespondedAwaitingApproval, "Awaiting approval");
+                                m_peer.ReleaseMessage(appMsg);
+                                return;
+                            }
+
+                            SendConnectResponse((float)now, true);
 						}
 						return;
 					}
 					if (m_status == NetConnectionStatus.RespondedAwaitingApproval)
 					{
-						m_peer.LogWarning("Ignoring multiple Connect() most likely due to a delayed Approval");
+						m_peer.LogVerbose("Ignoring multiple Connect() most likely due to a delayed Approval");
 						return;
 					}
 					if (m_status == NetConnectionStatus.RespondedConnect)
@@ -469,7 +469,7 @@ namespace Lidgren.Network
 			{
 				// whatever; we failed
 				ExecuteDisconnect("Handshake data validation failed", true);
-				m_peer.LogWarning("ReadRemoteHandshakeData failed: " + ex.Message);
+				m_peer.LogVerbose("ReadRemoteHandshakeData failed: " + ex.Message);
 				return false;
 			}
 			return true;

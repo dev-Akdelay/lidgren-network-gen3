@@ -22,7 +22,6 @@ namespace Lidgren.Network
 {
 	public partial class NetPeer
 	{
-		[Conditional("DEBUG")]
 		internal void LogVerbose(string message)
 		{
 #if __ANDROID__
@@ -32,7 +31,6 @@ namespace Lidgren.Network
 				ReleaseMessage(CreateIncomingMessage(NetIncomingMessageType.VerboseDebugMessage, message));
 		}
 
-		[Conditional("DEBUG")]
 		internal void LogDebug(string message)
 		{
 #if __ANDROID__
