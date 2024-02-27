@@ -35,7 +35,7 @@ namespace Lidgren.Network
 		internal override int GetAllowedSends()
 		{
 			if (!m_doFlowControl)
-				return 2; // always allowed to send without flow control!
+				return int.MaxValue; // always allowed to send without flow control!
 			int retval = m_windowSize - ((m_sendStart + NetConstants.NumSequenceNumbers) - m_windowStart) % m_windowSize;
 			NetException.Assert(retval >= 0 && retval <= m_windowSize);
 			return retval;
@@ -103,7 +103,7 @@ namespace Lidgren.Network
 			if (m_doFlowControl == false)
 			{
 				// we have no use for acks on this channel since we don't respect the window anyway
-				m_connection.m_peer.LogVerbose("SuppressUnreliableUnorderedAcks sender/receiver mismatch!");
+				m_connection.m_peer.LogWarning("SuppressUnreliableUnorderedAcks sender/receiver mismatch!");
 				return;
 			}
 
