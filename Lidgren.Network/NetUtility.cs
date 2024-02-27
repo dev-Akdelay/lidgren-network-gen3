@@ -98,7 +98,7 @@ namespace Lidgren.Network
 			NetAddress ipAddress = null;
 			if (NetAddress.TryParse(ipOrHost, out ipAddress))
 			{
-				if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+				if (ipAddress.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
 				{
 					callback(ipAddress);
 					return;
@@ -139,7 +139,7 @@ namespace Lidgren.Network
 					// check each entry for a valid IP address
 					foreach (var ipCurrent in entry.AddressList)
 					{
-						if (ipCurrent.AddressFamily == AddressFamily.InterNetwork)
+						if (ipCurrent.AddressFamily == AddressFamily.InterNetwork || ipCurrent.AddressFamily == AddressFamily.InterNetworkV6)
 						{
 							callback(ipCurrent);
 							return;
@@ -176,9 +176,9 @@ namespace Lidgren.Network
 			NetAddress ipAddress = null;
 			if (NetAddress.TryParse(ipOrHost, out ipAddress))
 			{
-				if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+				if (ipAddress.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
 					return ipAddress;
-				throw new ArgumentException("This method will not currently resolve other than ipv4 addresses");
+				throw new ArgumentException("This method will not currently resolve other than IPv4 or IPv6 addresses");
 			}
 
 			// ok must be a host name
@@ -189,7 +189,7 @@ namespace Lidgren.Network
 					return null;
 				foreach (var address in addresses)
 				{
-					if (address.AddressFamily == AddressFamily.InterNetwork)
+					if (address.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
 						return address;
 				}
 				return null;
@@ -276,14 +276,10 @@ namespace Lidgren.Network
 		[CLSCompliant(false)]
 		public static int BitsToHoldUInt(uint value)
 		{
-			if (value == 0) return 1;
-			int n = 31;
-			if ((value >> 16) == 0) { n = n - 16; value = value << 16; }
-			if ((value >> 24) == 0) { n = n - 8; value = value << 8; }
-			if ((value >> 28) == 0) { n = n - 4; value = value << 4; }
-			if ((value >> 30) == 0) { n = n - 2; value = value << 2; }
-			n = n + (int)(value >> 31);
-			return n;
+			int bits = 1;
+			while ((value >>= 1) != 0)
+				bits++;
+			return bits;
 		}
 
 		/// <summary>
@@ -292,15 +288,10 @@ namespace Lidgren.Network
 		[CLSCompliant(false)]
 		public static int BitsToHoldUInt64(ulong value)
 		{
-			if (value == 0) return 1;
-			int n = 63;
-			if ((value >> 32) == 0) { n = n - 32; value = value << 32; }
-			if ((value >> 48) == 0) { n = n - 16; value = value << 16; }
-			if ((value >> 56) == 0) { n = n - 8; value = value << 8; }
-			if ((value >> 60) == 0) { n = n - 4; value = value << 4; }
-			if ((value >> 62) == 0) { n = n - 2; value = value << 2; }
-			n = n + (int)(value >> 63);
-			return n;
+			int bits = 1;
+			while ((value >>= 1) != 0)
+				bits++;
+			return bits;
 		}
 
 		/// <summary>
@@ -308,7 +299,7 @@ namespace Lidgren.Network
 		/// </summary>
 		public static int BytesToHoldBits(int numBits)
 		{
-			return (numBits + 7) >> 3;
+			return (numBits + 7) / 8;
 		}
 
 		internal static UInt32 SwapByteOrder(UInt32 value)
@@ -322,43 +313,25 @@ namespace Lidgren.Network
 
 		internal static UInt64 SwapByteOrder(UInt64 value)
 		{
-			value = ((value >> 32) | (value << 32));
-			value = ((value & 0xFFFF0000FFFF0000UL) >> 16) | ((value & 0x0000FFFF0000FFFFUL) << 16);
-			value = ((value & 0xFF00FF00FF00FF00UL) >> 8) | ((value & 0x00FF00FF00FF00FFUL) << 8);
-			return value;
+			return
+				((value & 0xff00000000000000L) >> 56) |
+				((value & 0x00ff000000000000L) >> 40) |
+				((value & 0x0000ff0000000000L) >> 24) |
+				((value & 0x000000ff00000000L) >> 8) |
+				((value & 0x00000000ff000000L) << 8) |
+				((value & 0x0000000000ff0000L) << 24) |
+				((value & 0x000000000000ff00L) << 40) |
+				((value & 0x00000000000000ffL) << 56);
 		}
 
-		internal static unsafe bool CompareElements(byte[] one, byte[] two)
+		internal static bool CompareElements(byte[] one, byte[] two)
 		{
 			if (one.Length != two.Length)
 				return false;
-			fixed (byte* bytes1 = one, bytes2 = two)
-			{
-				int len = one.Length - 1;
-				int rem = len % 1024;
-				ulong* b1 = (ulong*)bytes1;
-				ulong* b2 = (ulong*)bytes2;
-				ulong* e1 = (ulong*)(bytes1 + len + 1 - rem);
-				while (b1 < e1)
-				{
-					if (*(b1) != *(b2) || *(b1 + 1) != *(b2 + 1) ||
-						*(b1 + 2) != *(b2 + 2) || *(b1 + 3) != *(b2 + 3) ||
-						*(b1 + 4) != *(b2 + 4) || *(b1 + 5) != *(b2 + 5) ||
-						*(b1 + 6) != *(b2 + 6) || *(b1 + 7) != *(b2 + 7) ||
-						*(b1 + 8) != *(b2 + 8) || *(b1 + 9) != *(b2 + 9) ||
-						*(b1 + 10) != *(b2 + 10) || *(b1 + 11) != *(b2 + 11) ||
-						*(b1 + 12) != *(b2 + 12) || *(b1 + 13) != *(b2 + 13) ||
-						*(b1 + 14) != *(b2 + 14) || *(b1 + 15) != *(b2 + 15))
-						return false;
-					b1 += 16;
-					b2 += 16;
-				}
-				for (int i = 0; i < rem; i++)
-				{
-					if (one[len - i] != two[len - i]) return false;
-				}
-				return true;
-			}
+			for (int i = 0; i < one.Length; i++)
+				if (one[i] != two[i])
+					return false;
+			return true;
 		}
 
 		/// <summary>
@@ -492,5 +465,29 @@ namespace Lidgren.Network
 			// this is defined in the platform specific files
 			return ComputeSHAHash(bytes, 0, bytes.Length);
 		}
-	}
+
+        /// <summary>
+        /// Copies from <paramref name="src"/> to <paramref name="dst"/>. Maps to an IPv6 address
+        /// </summary>
+        /// <param name="src">Source.</param>
+        /// <param name="dst">Destination.</param>
+        internal static void CopyEndpoint(IPEndPoint src, IPEndPoint dst)
+        {
+            dst.Port = src.Port;
+            if (src.AddressFamily == AddressFamily.InterNetwork)
+                dst.Address = src.Address.MapToIPv6();
+            else
+                dst.Address = src.Address;
+        }
+
+        /// <summary>
+        /// Maps the IPEndPoint object to an IPv6 address. Has allocation
+        /// </summary>
+        internal static IPEndPoint MapToIPv6(IPEndPoint endPoint)
+        {
+            if (endPoint.AddressFamily == AddressFamily.InterNetwork)
+                return new IPEndPoint(endPoint.Address.MapToIPv6(), endPoint.Port);
+            return endPoint;
+        }
+    }
 }

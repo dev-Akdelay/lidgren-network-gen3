@@ -121,7 +121,7 @@ namespace Lidgren.Network
 			m_connections = new List<NetConnection>();
 			m_connectionLookup = new Dictionary<NetEndPoint, NetConnection>();
 			m_handshakes = new Dictionary<NetEndPoint, NetConnection>();
-			m_senderRemote = (EndPoint)new NetEndPoint(IPAddress.Any, 0);
+			m_senderRemote = (EndPoint)new NetEndPoint(IPAddress.IPv6Any, 0);
 			m_status = NetPeerStatus.NotRunning;
 			m_receivedFragmentGroups = new Dictionary<NetConnection, Dictionary<int, ReceivedFragmentGroup>>();	
 		}
@@ -134,7 +134,7 @@ namespace Lidgren.Network
 			if (m_status != NetPeerStatus.NotRunning)
 			{
 				// already running! Just ignore...
-				LogVerbose("Start() called on already running NetPeer - ignoring.");
+				LogWarning("Start() called on already running NetPeer - ignoring.");
 				return;
 			}
 
@@ -303,6 +303,7 @@ namespace Lidgren.Network
 		{
 			if (remoteEndPoint == null)
 				throw new ArgumentNullException("remoteEndPoint");
+            remoteEndPoint = NetUtility.MapToIPv6(remoteEndPoint);
 
 			lock (m_connections)
 			{
@@ -328,14 +329,14 @@ namespace Lidgren.Network
 							break;
 						default:
 							// weird
-							LogVerbose("Weird situation; Connect() already in progress to remote endpoint; but hs status is " + hs.m_status);
+							LogWarning("Weird situation; Connect() already in progress to remote endpoint; but hs status is " + hs.m_status);
 							break;
 					}
 					return hs;
 				}
 
 				NetConnection conn = new NetConnection(this, remoteEndPoint);
-				conn.SetStatus(NetConnectionStatus.InitiatedConnect, "user called connect");
+                conn.SetStatus(NetConnectionStatus.InitiatedConnect, "user called connect");
 				conn.m_localHailMessage = hailMessage;
 
 				// handle on network thread
