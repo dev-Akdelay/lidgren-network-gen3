@@ -141,7 +141,7 @@ namespace Lidgren.Network
 				ba = NetUtility.GetCachedBroadcastAddress();
 
 				// TODO: refactor this check outta here
-				if (target.Address == ba)
+				if (target.Address.Equals(ba))
 				{
 					// Some networks do not allow 
 					// a global broadcast so we use the BroadcastAddress from the configuration
@@ -227,7 +227,7 @@ namespace Lidgren.Network
 				m_socket.DontFragment = true;
 				int bytesSent = m_socket.SendTo(m_sendBuffer, 0, numBytes, SocketFlags.None, target);
 				if (numBytes != bytesSent)
-					LogVerbose("Failed to send the full " + numBytes + "; only " + bytesSent + " bytes sent in packet!");
+					LogWarning("Failed to send the full " + numBytes + "; only " + bytesSent + " bytes sent in packet!");
 			}
 			catch (SocketException sx)
 			{
@@ -236,7 +236,7 @@ namespace Lidgren.Network
 				if (sx.SocketErrorCode == SocketError.WouldBlock)
 				{
 					// send buffer full?
-					LogVerbose("Socket threw exception; would block - send buffer full? Increase in NetPeerConfiguration");
+					LogWarning("Socket threw exception; would block - send buffer full? Increase in NetPeerConfiguration");
 					return true;
 				}
 				if (sx.SocketErrorCode == SocketError.ConnectionReset)
@@ -273,14 +273,14 @@ namespace Lidgren.Network
 
 				int bytesSent = m_socket.SendTo(m_sendBuffer, 0, numBytes, SocketFlags.None, target);
 				if (numBytes != bytesSent)
-					LogVerbose("Failed to send the full " + numBytes + "; only " + bytesSent + " bytes sent in packet!");
+					LogWarning("Failed to send the full " + numBytes + "; only " + bytesSent + " bytes sent in packet!");
 			}
 			catch (SocketException sx)
 			{
 				if (sx.SocketErrorCode == SocketError.WouldBlock)
 				{
 					// send buffer full?
-					LogVerbose("Socket threw exception; would block - send buffer full? Increase in NetPeerConfiguration");
+					LogWarning("Socket threw exception; would block - send buffer full? Increase in NetPeerConfiguration");
 					return;
 				}
 				if (sx.SocketErrorCode == SocketError.ConnectionReset)
