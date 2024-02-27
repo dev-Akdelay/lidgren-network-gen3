@@ -707,8 +707,12 @@ namespace Lidgren.Network
 					// handle connect
 					// It's someone wanting to shake hands with us!
 
-					int reservedSlots = m_handshakes.Count + m_connections.Count;
-					if (reservedSlots >= m_configuration.m_maximumConnections)
+					//Add Client Auth here or earlier
+
+					//int reservedSlots = m_handshakes.Count + m_connections.Count;
+					//if (reservedSlots >= m_configuration.m_maximumConnections)
+					//Dirty fix
+					if (m_configuration.m_curPlayers >= m_configuration.m_maxPlayers)
 					{
 						// server full
 						NetOutgoingMessage full = CreateMessage("Server full");

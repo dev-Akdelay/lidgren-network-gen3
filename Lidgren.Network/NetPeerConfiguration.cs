@@ -81,6 +81,9 @@ namespace Lidgren.Network
 		internal float m_expandMTUFrequency;
 		internal int m_expandMTUFailAttempts;
 
+		internal int m_maxPlayers;
+		internal int m_curPlayers;
+
 		/// <summary>
 		/// NetPeerConfiguration constructor
 		/// </summary>
