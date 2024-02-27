@@ -219,6 +219,20 @@ namespace Lidgren.Network
 			}
 		}
 
+		
+
+		/// <summary />
+		public int CurrentPlayers
+		{
+			get { return m_curPlayers; }
+			set
+			{
+				if (m_isLocked)
+					throw new NetException(c_isLockedMessage);
+				m_curPlayers = value;
+			}
+		}
+
 		/// <summary>
 		/// Gets or sets the maximum amount of bytes to send in a single packet, excluding ip, udp and lidgren headers. Cannot be changed once NetPeer is initialized.
 		/// </summary>
